@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { View, StyleSheet } from "react-native";
 import Auth from "./screens/Auth";
 import Account from "./screens/Account";
-import MoviesScreen from "./screens/MoviesScreen";
-import SearchMoviesScreen from "./screens/SearchMoviesScreen";
+import TopMoviesScreen from "./screens/TopMovies";
+import SearchMoviesScreen from "./screens/SearchMovies";
 import { useSession } from "./hooks/useSession";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
 
@@ -24,7 +24,7 @@ export default function App() {
         <View style={styles.container}>
           {session && session.user ? (
             <Tab.Navigator>
-              <Tab.Screen name="Top Movies" component={MoviesScreen} />
+              <Tab.Screen name="Top Movies" component={TopMoviesScreen} />
               <Tab.Screen name="Search Movies" component={SearchMoviesScreen} />
               <Tab.Screen name="Account">
                 {() => <Account session={session} />}
