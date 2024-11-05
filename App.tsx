@@ -8,6 +8,7 @@ import TopMoviesScreen from "./screens/TopMovies";
 import SearchMoviesScreen from "./screens/SearchMovies";
 import { useSession } from "./hooks/useSession";
 import { useReactQueryDevTools } from "@dev-plugins/react-query";
+import AuthGuard from "./screens/AuthGuard";
 
 const Tab = createBottomTabNavigator();
 const queryClient = new QueryClient();
@@ -21,19 +22,24 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <NavigationContainer>
-        <View style={styles.container}>
-          {session && session.user ? (
-            <Tab.Navigator>
-              <Tab.Screen name="Top Movies" component={TopMoviesScreen} />
-              <Tab.Screen name="Search Movies" component={SearchMoviesScreen} />
-              <Tab.Screen name="Account">
-                {() => <Account session={session} />}
-              </Tab.Screen>
-            </Tab.Navigator>
-          ) : (
-            <Auth />
-          )}
-        </View>
+        <AuthGuard>
+          <View style={styles.container}>
+            {session && session.user ? (
+              <Tab.Navigator>
+                <Tab.Screen name="Top Movies" component={TopMoviesScreen} />
+                <Tab.Screen
+                  name="Search Movies"
+                  component={SearchMoviesScreen}
+                />
+                <Tab.Screen name="Account">
+                  {() => <Account session={session} />}
+                </Tab.Screen>
+              </Tab.Navigator>
+            ) : (
+              <Auth />
+            )}
+          </View>
+        </AuthGuard>
       </NavigationContainer>
     </QueryClientProvider>
   );
