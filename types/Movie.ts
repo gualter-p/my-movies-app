@@ -17,3 +17,10 @@ export type MovieGridProps = {
   onEndReachedThreshold?: number;
   isFetchingNextPage?: boolean;
 };
+
+export type MovieSearchQueryData = {
+  pages: {
+    query: string;
+    movies: Movie[];
+  }[];
+};
