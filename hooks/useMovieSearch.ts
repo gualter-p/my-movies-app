@@ -54,6 +54,7 @@ export const useMovieSearch = (query: string, currentPage: number) => {
     },
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    staleTime: Infinity,
+    staleTime: 1000 * 60 * 5, // Does regular (5mins) refetching online
+    gcTime: Infinity, // No garbage collection to keep stale cache
   });
 };
