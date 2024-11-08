@@ -39,14 +39,14 @@ const fetchMovies = async ({
   };
 };
 
-export const useMovieSearch = (query: string) => {
+export const useMovieSearch = (query: string, currentPage: number) => {
   const trimmedQuery = query.trim();
 
   return useInfiniteQuery({
     queryKey: [Queries.SEARCH_MOVIES, trimmedQuery],
     queryFn: fetchMovies,
     enabled: !!trimmedQuery,
-    initialPageParam: 1,
+    initialPageParam: currentPage,
     getNextPageParam: (lastPage) => {
       return lastPage.nextPage <= lastPage.totalPages
         ? lastPage.nextPage
@@ -54,6 +54,7 @@ export const useMovieSearch = (query: string) => {
     },
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 5, // Does regular (5mins) refetching online
+    gcTime: Infinity, // No garbage collection to keep stale cache
   });
 };
