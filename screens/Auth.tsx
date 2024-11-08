@@ -16,9 +16,9 @@ AppState.addEventListener("change", (state) => {
 });
 
 export default function Auth() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
 
   async function signInWithEmail() {
     setLoading(true);

@@ -20,7 +20,6 @@ export default function MovieGrid({
   error,
   onEndReached,
   onEndReachedThreshold = 0.5,
-  isFetchingNextPage = false,
 }: MovieGridProps) {
   const { width } = useWindowDimensions();
   const numColumns = Math.min(
@@ -34,10 +33,16 @@ export default function MovieGrid({
   return (
     <FlatList
       data={movies}
+      key={`grid-${numColumns}`}
       keyExtractor={(item) => item.id.toString()}
       numColumns={numColumns}
       renderItem={({ item }) => (
-        <View style={styles.movieCardContainer}>
+        <View
+          style={[
+            styles.movieCardContainer,
+            { width: width / numColumns - SPACING },
+          ]}
+        >
           <View style={styles.movieCard}>
             <Image source={{ uri: item.poster_url }} style={styles.poster} />
             <Text numberOfLines={1} ellipsizeMode="tail" style={styles.title}>
@@ -50,9 +55,6 @@ export default function MovieGrid({
       contentContainerStyle={styles.listContainer}
       onEndReached={onEndReached}
       onEndReachedThreshold={onEndReachedThreshold}
-      ListFooterComponent={
-        isFetchingNextPage ? <ActivityIndicator size="small" /> : null
-      }
     />
   );
 }
@@ -64,7 +66,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   movieCardContainer: {
-    flex: 1,
     alignItems: "center",
     padding: 5,
   },
