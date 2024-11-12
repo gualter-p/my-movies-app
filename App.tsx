@@ -14,6 +14,7 @@ import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persi
 import useNetworkDetection from "./hooks/useNetworkDetection";
 import AuthGuard from "./screens/AuthGuard";
 import NetworkStatusModal from "./components/NetworkStatusModal";
+import MyMovies from "./screens/MyMovies";
 
 const Tab = createBottomTabNavigator();
 const queryClient = new QueryClient();
@@ -48,9 +49,7 @@ export default function App() {
                   name="Search Movies"
                   component={SearchMoviesScreen}
                 />
-                <Tab.Screen name="My Movies">
-                  {() => <>My playlists</>}
-                </Tab.Screen>
+                <Tab.Screen name="My Movies" component={MyMovies} />
                 <Tab.Screen name="Account">
                   {() => <Account session={session} />}
                 </Tab.Screen>
