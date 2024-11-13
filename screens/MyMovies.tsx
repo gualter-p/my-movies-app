@@ -24,10 +24,6 @@ export default function MyMovies() {
     queryFn: getUserPlaylists,
   });
 
-  console.log("isLoading", isLoading);
-  console.log("isFetched", isFetched);
-  console.log("playlists", playlists);
-
   if (isLoading && !isFetched)
     return <ActivityIndicator size="large" color="#0000ff" />;
 
