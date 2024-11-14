@@ -1,9 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "../lib/supabase";
-import { Movie } from "../types/Movie";
-import { Queries } from "../constants/query";
+import { supabase } from "../../lib/supabase";
+import { Movie } from "../../types/Movie";
+import { Queries } from "../../constants/query";
+import { Playlist } from "../../types/Playlist";
+import { Mutations } from "../../constants/mutation";
+import { handleOnMutate, optimisticUpdateAddMovieToPlaylist } from "./helpers";
 
-async function createPlaylist(name: string, description: string) {
+export async function createPlaylist(name: string, description: string) {
   const user = await supabase.auth.getUser();
   if (!user.data.user) {
     console.error("No authenticated user found");
@@ -29,7 +32,7 @@ async function createPlaylist(name: string, description: string) {
   return data;
 }
 
-async function addMovieToPlaylist(playlistId: string, movie: Movie) {
+export async function addMovieToPlaylist(playlistId: string, movie: Movie) {
   const user = await supabase.auth.getUser();
   if (!user.data.user) {
     console.error("No authenticated user found");
@@ -82,6 +85,7 @@ export function useMutateCreatePlaylist() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: [Mutations.CREATE_PLAYLIST],
     mutationFn: ({
       name,
       description,
@@ -89,6 +93,13 @@ export function useMutateCreatePlaylist() {
       name: string;
       description: string;
     }) => createPlaylist(name, description),
+    onMutate: async () => {
+      const { previousData: previousPlaylists } = await handleOnMutate(
+        queryClient,
+        [Queries.USER_PLAYLISTS]
+      );
+      return { previousPlaylists };
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["userPlaylists"] });
     },
@@ -99,9 +110,28 @@ export function useMutateAddMovieToPlaylist() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationKey: [Mutations.ADD_MOVIE_TO_PLAYLIST],
     mutationFn: ({ playlistId, movie }: { playlistId: string; movie: Movie }) =>
       addMovieToPlaylist(playlistId, movie),
-    onSuccess: () => {
+    onMutate: async ({ playlistId, movie }) => {
+      const { previousData: previousPlaylists } = await handleOnMutate(
+        queryClient,
+        [Queries.USER_PLAYLISTS],
+        (oldData: Playlist[]) =>
+          optimisticUpdateAddMovieToPlaylist(playlistId, movie, oldData)
+      );
+      return { previousPlaylists };
+    },
+    onError: (err, variables, context) => {
+      // Roll back on error
+      if (context?.previousPlaylists) {
+        queryClient.setQueryData(
+          [Queries.USER_PLAYLISTS],
+          context.previousPlaylists
+        );
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [Queries.USER_PLAYLISTS] });
     },
   });

@@ -1,20 +1,31 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import NetInfo from "@react-native-community/netinfo";
-import { onlineManager } from "@tanstack/react-query";
+import { onlineManager, QueryClient } from "@tanstack/react-query";
+import { useProcessPendingMutations } from "./useProcessPendingMutations";
 
-export default function useNetworkDetection() {
+export default function useNetworkDetection(queryClient: QueryClient) {
   const [modalVisible, setModalVisible] = useState(<boolean>false);
   const [message, setMessage] = useState<string>("");
+  const { processPendingMutations } = useProcessPendingMutations(queryClient);
 
   // Track initial connection state to avoid showing modal on app launch
   const hasCheckedInitialConnection = useRef<boolean>(false);
   const lastConnectionState = useRef<boolean | null>(null); // Track the previous connection state to detect changes
 
-  const handleMessage = useCallback((isConnected: boolean) => {
-    onlineManager.setOnline(isConnected);
-    setMessage(isConnected ? "You are back online!" : "You are offline!");
-    setModalVisible(true);
-  }, []);
+  const handleMessage = useCallback(
+    (isConnected: boolean) => {
+      onlineManager.setOnline(isConnected);
+      if (isConnected) {
+        setMessage("You are back online!");
+        queryClient.resumePausedMutations(); // Handle pending mutations (using queryClient)
+        // processPendingMutations(); // Handle pending mutations (ourselves)
+      } else {
+        setMessage("You are offline!");
+      }
+      setModalVisible(true);
+    },
+    [queryClient]
+  );
 
   const checkInitialConnection = useCallback(async () => {
     const state = await NetInfo.fetch();

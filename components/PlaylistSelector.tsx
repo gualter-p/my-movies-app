@@ -9,22 +9,26 @@ import {
   ActivityIndicator,
 } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
+import NetInfo from "@react-native-community/netinfo";
 import {
   getUserPlaylists,
   useMutateAddMovieToPlaylist,
   useMutateCreatePlaylist,
-} from "../server/playlists";
+} from "../server/playlists/playlists";
+// import {
+//   useMutateAddMovieToPlaylistUsingStorage,
+//   useMutateCreatePlaylistUsingStorage,
+// } from "../server/playlists/playlistsWithStorage";
 import { Playlist, PlaylistModalProps } from "../types/Playlist";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../constants/query";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function PlaylistSelector({
   visible,
   onClose,
   movie,
 }: PlaylistModalProps) {
-  const queryClient = useQueryClient();
-
   const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null);
   const [newPlaylistDescription, setNewPlaylistDescription] = useState<
     string | null
@@ -48,13 +52,23 @@ export default function PlaylistSelector({
     setSelectedPlaylist(null);
   };
 
-  const handleAddButtonPress = () => {
+  const handleAddButtonPress = async () => {
     if (!movie) return;
+
+    const connection = await NetInfo.fetch();
+    if (!connection.isConnected) {
+      toast.error(
+        "The device is offline! Adding the movie to the playlist will be attempted when connection is reestablished."
+      );
+      cleanUp();
+    }
 
     if (selectedPlaylist) {
       addToPlaylist(
         { playlistId: selectedPlaylist, movie },
-        { onSuccess: () => cleanUp() }
+        {
+          onSuccess: () => cleanUp(),
+        }
       );
     } else {
       createAndAddToPlaylist(
@@ -122,6 +136,7 @@ export default function PlaylistSelector({
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
+        <Toaster />
       </View>
     </Modal>
   );

@@ -8,7 +8,7 @@ import {
   Dimensions,
 } from "react-native";
 import { useQuery } from "@tanstack/react-query";
-import { getUserPlaylists } from "../server/playlists";
+import { getUserPlaylists } from "../server/playlists/playlists";
 import { Queries } from "../constants/query";
 
 const { width: windowWidth } = Dimensions.get("window");
