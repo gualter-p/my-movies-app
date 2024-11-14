@@ -8,11 +8,19 @@ import {
   optimisticUpdateAddMovieToPlaylist,
 } from "./helpers";
 import { Mutations } from "../../constants/mutation";
+import { addMovieToPlaylist, createPlaylist } from "./playlists";
 
 export function useMutateCreatePlaylistUsingStorage() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationFn: ({
+      name,
+      description,
+    }: {
+      name: string;
+      description: string;
+    }) => createPlaylist(name, description),
     onMutate: async ({
       name,
       description,
@@ -49,6 +57,8 @@ export function useMutateAddMovieToPlaylistUsingStorage() {
   const queryClient = useQueryClient();
 
   return useMutation({
+    mutationFn: ({ playlistId, movie }: { playlistId: string; movie: Movie }) =>
+      addMovieToPlaylist(playlistId, movie),
     onMutate: async ({
       playlistId,
       movie,
