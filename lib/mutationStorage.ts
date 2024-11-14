@@ -1,13 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-
-export type PendingMutation = {
-  id: string;
-  mutationKey: string;
-  data: any;
-  timestamp: number;
-};
-
-const PENDING_MUTATIONS_KEY = "pending_mutations";
+import { PendingMutation } from "../types/Mutation";
+import { PENDING_MUTATIONS_KEY } from "../constants/mutation";
 
 export const MutationStorage = {
   async add(mutation: PendingMutation) {

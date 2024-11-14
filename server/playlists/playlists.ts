@@ -100,8 +100,17 @@ export function useMutateCreatePlaylist() {
       );
       return { previousPlaylists };
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["userPlaylists"] });
+    onError: (_, __, context) => {
+      // Roll back on error
+      if (context?.previousPlaylists) {
+        queryClient.setQueryData(
+          [Queries.USER_PLAYLISTS],
+          context.previousPlaylists
+        );
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: [Queries.USER_PLAYLISTS] });
     },
   });
 }
@@ -122,7 +131,7 @@ export function useMutateAddMovieToPlaylist() {
       );
       return { previousPlaylists };
     },
-    onError: (err, variables, context) => {
+    onError: (_, __, context) => {
       // Roll back on error
       if (context?.previousPlaylists) {
         queryClient.setQueryData(

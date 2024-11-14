@@ -1,7 +1,11 @@
 import { QueryClient } from "@tanstack/react-query";
 import { Playlist } from "../../types/Playlist";
 import { Movie } from "../../types/Movie";
+import { PendingMutation } from "../../types/Mutation";
+import { Mutations } from "../../constants/mutation";
+import { MutationStorage } from "../../lib/mutationStorage";
 
+// Handles mutation
 export async function handleOnMutate<T>(
   queryClient: QueryClient,
   queryKey: string[],
@@ -21,6 +25,7 @@ export async function handleOnMutate<T>(
   return { previousData };
 }
 
+// Handles optimistic update
 export function optimisticUpdateAddMovieToPlaylist(
   playlistId: string,
   movie: Movie,
@@ -37,4 +42,15 @@ export function optimisticUpdateAddMovieToPlaylist(
     });
   }
   return updatedPlaylists;
+}
+
+// Creates and adds a pending mutation to AsyncStorage
+export async function addPendingMutation<T>(mutationKey: string, data: T) {
+  const pendingMutation: PendingMutation = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+    mutationKey,
+    data,
+    timestamp: Date.now(),
+  };
+  await MutationStorage.add(pendingMutation);
 }

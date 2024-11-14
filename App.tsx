@@ -32,10 +32,8 @@ const queryClient = new QueryClient();
 // If using tanstack-query to handle persisting offline mutations, we need to setMutationDefaults
 // More on this here: https://tanstack.com/query/latest/docs/framework/react/guides/mutations#persisting-offline-mutations
 queryClient.setMutationDefaults([Mutations.ADD_MOVIE_TO_PLAYLIST], {
-  mutationFn: ({ playlistId, movie }: { playlistId: string; movie: Movie }) => {
-    console.log("HERE", playlistId, movie.id);
-    return addMovieToPlaylist(playlistId, movie);
-  },
+  mutationFn: ({ playlistId, movie }: { playlistId: string; movie: Movie }) =>
+    addMovieToPlaylist(playlistId, movie),
 });
 queryClient.setMutationDefaults([Mutations.CREATE_PLAYLIST], {
   mutationFn: ({ name, description }: { name: string; description: string }) =>
@@ -67,12 +65,6 @@ export default function App() {
       persistOptions={{
         persister: asyncStoragePersister,
         maxAge: 1000 * 60 * 60 * 24,
-      }}
-      onSuccess={() => {
-        console.log("PersistQueryClientProvider.onSuccess");
-        queryClient
-          .resumePausedMutations()
-          .then(() => queryClient.invalidateQueries());
       }}
     >
       <NavigationContainer>
