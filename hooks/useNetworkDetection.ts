@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import NetInfo from "@react-native-community/netinfo";
 import { onlineManager, QueryClient } from "@tanstack/react-query";
-import { processPendingMutations } from "./useProcessPendingMutations";
 
 export default function useNetworkDetection(queryClient: QueryClient) {
   const [modalVisible, setModalVisible] = useState(<boolean>false);
