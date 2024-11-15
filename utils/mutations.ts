@@ -7,7 +7,7 @@ import {
 } from "../server/playlists/playlists";
 import { Mutations } from "../constants/mutation";
 import { Queries } from "../constants/query";
-import { AddToPlaylistMutationPayload } from "../types/Playlist";
+import { AddToPlaylistMutationPayload, Playlist } from "../types/Playlist";
 
 export async function processPendingMutations(queryClient: QueryClient) {
   const mutations = await MutationStorage.get();
@@ -45,7 +45,9 @@ export async function processPendingMutations(queryClient: QueryClient) {
 
 export async function clearConflictingMutations(queryClient: QueryClient) {
   // Fetch the latest playlist data
-  const playlists = await getUserPlaylists();
+  const playlists = queryClient.getQueryData<Playlist[]>([
+    Queries.USER_PLAYLISTS,
+  ]);
 
   // We get the list of pending mutations
   const mutationCache = queryClient.getMutationCache();
@@ -61,10 +63,10 @@ export async function clearConflictingMutations(queryClient: QueryClient) {
       const { playlistId, movie } = mutation.state
         .variables as AddToPlaylistMutationPayload;
 
-      const hasConflict = playlists.some(
+      const hasConflict = playlists?.some(
         (playlist) =>
           playlist.id === playlistId &&
-          playlist.items.some((item) => item.movie_id === movie.id)
+          playlist.items.some((item) => item.movie_id === String(movie.id))
       );
 
       if (hasConflict) {
