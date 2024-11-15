@@ -3,35 +3,32 @@ import { MutationStorage } from "../lib/mutationStorage";
 import {
   addMovieToPlaylist,
   createPlaylist,
-  getUserPlaylists,
 } from "../server/playlists/playlists";
 import { Mutations } from "../constants/mutation";
 import { Queries } from "../constants/query";
 import { AddToPlaylistMutationPayload, Playlist } from "../types/Playlist";
+import { PendingMutation } from "../types/Mutation";
+
+const PendingMutations = {
+  [Mutations.ADD_MOVIE_TO_PLAYLIST]: async (mutation: PendingMutation) => {
+    await addMovieToPlaylist(mutation.data.playlistId, mutation.data.movie);
+    await MutationStorage.remove(mutation.id);
+  },
+  [Mutations.CREATE_PLAYLIST]: async (mutation: PendingMutation) => {
+    await createPlaylist(mutation.data.name, mutation.data.description);
+    await MutationStorage.remove(mutation.id);
+  },
+};
 
 export async function processPendingMutations(queryClient: QueryClient) {
   const mutations = await MutationStorage.get();
-  console.log("Mutations to process:", mutations);
 
   // Process mutations concurrently
   await Promise.all(
     mutations.map(async (mutation) => {
       try {
-        switch (mutation.mutationKey) {
-          case Mutations.ADD_MOVIE_TO_PLAYLIST:
-            await addMovieToPlaylist(
-              mutation.data.playlistId,
-              mutation.data.movie
-            );
-            await MutationStorage.remove(mutation.id);
-            break;
-          case Mutations.CREATE_PLAYLIST:
-            await createPlaylist(mutation.data.name, mutation.data.description);
-            await MutationStorage.remove(mutation.id);
-            break;
-          default:
-            console.log("Unhandled mutation key:", mutation.mutationKey);
-        }
+        const mutationHandler = PendingMutations[mutation.mutationKey];
+        await mutationHandler?.(mutation);
       } catch (error) {
         console.error("Failed to process mutation:", mutation.id, error);
       }
