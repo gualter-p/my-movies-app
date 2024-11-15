@@ -75,6 +75,4 @@ export async function clearConflictingMutations(queryClient: QueryClient) {
       }
     }
   });
-
-  return pendingMutations;
 }
