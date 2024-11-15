@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import NetInfo from "@react-native-community/netinfo";
 import { onlineManager, QueryClient } from "@tanstack/react-query";
+import { clearConflictingMutations } from "../utils/mutations";
 
 export default function useNetworkDetection(queryClient: QueryClient) {
   const [modalVisible, setModalVisible] = useState(<boolean>false);
@@ -11,10 +12,11 @@ export default function useNetworkDetection(queryClient: QueryClient) {
   const lastConnectionState = useRef<boolean | null>(null); // Track the previous connection state to detect changes
 
   const handleMessage = useCallback(
-    (isConnected: boolean) => {
+    async (isConnected: boolean) => {
       onlineManager.setOnline(isConnected);
       if (isConnected) {
         setMessage("You are back online!");
+        await clearConflictingMutations(queryClient);
         queryClient.resumePausedMutations(); // Handle pending mutations (using queryClient)
         // processPendingMutations(queryClient); // Handle pending mutations (ourselves)
       } else {
