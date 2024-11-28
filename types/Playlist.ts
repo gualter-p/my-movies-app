@@ -17,3 +17,8 @@ export type PlaylistModalProps = {
   onClose: () => void;
   movie: Movie | null;
 };
+
+export type AddToPlaylistMutationPayload = {
+  playlistId: string;
+  movie: Movie;
+};
