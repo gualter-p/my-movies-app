@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     margin: "auto",
     padding: 12,
+    width: "100%",
   },
   verticallySpaced: {
     paddingTop: 4,
