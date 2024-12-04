@@ -25,6 +25,12 @@
     },
     "plugins": [
       "expo-secure-store"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "25942db3-2963-4820-b888-62ca39cf9d4e"
+      }
+    },
+    "owner": "gualterp"
   }
 }

@@ -22,13 +22,16 @@ import {
 import { Playlist, PlaylistModalProps } from "../types/Playlist";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../constants/query";
-import toast, { Toaster } from "react-hot-toast";
+import { getFollowers } from "../server/followings/followings";
+import { useSession } from "../hooks/useSession";
+import { sendPushNotification } from "../utils/pushnotification";
 
 export default function PlaylistSelector({
   visible,
   onClose,
   movie,
 }: PlaylistModalProps) {
+  const { session } = useSession();
   const [newPlaylistName, setNewPlaylistName] = useState<string | null>(null);
   const [newPlaylistDescription, setNewPlaylistDescription] = useState<
     string | null
@@ -57,9 +60,9 @@ export default function PlaylistSelector({
 
     const connection = await NetInfo.fetch();
     if (!connection.isConnected) {
-      toast.error(
-        "The device is offline! Adding the movie to the playlist will be attempted when connection is reestablished."
-      );
+      // toast.error(
+      //   "The device is offline! Adding the movie to the playlist will be attempted when connection is reestablished."
+      // );
       cleanUp();
     }
 
@@ -67,7 +70,18 @@ export default function PlaylistSelector({
       addToPlaylist(
         { playlistId: selectedPlaylist, movie },
         {
-          onSuccess: () => cleanUp(),
+          onSuccess: async () => {
+            const followers = await getFollowers(session?.user.id || "");
+
+            if (followers.length > 0) {
+              followers.forEach((follower) => {
+                const message = `${session?.user.id} just added "${movie.title}" to their playlist!`;
+                sendPushNotification(follower.profiles.push_token, message);
+              });
+            }
+
+            cleanUp();
+          },
         }
       );
     } else {
@@ -96,7 +110,7 @@ export default function PlaylistSelector({
         <View style={styles.modalContainer}>
           <Text style={styles.modalTitle}>Select Playlist</Text>
           {isLoading ? (
-            <ActivityIndicator size="large" />
+            <ActivityIndicator />
           ) : (
             <DropDownPicker
               open={open}
@@ -136,7 +150,7 @@ export default function PlaylistSelector({
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
-        <Toaster />
+        {/* <Toaster /> */}
       </View>
     </Modal>
   );

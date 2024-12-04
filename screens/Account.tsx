@@ -1,13 +1,24 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
-import { StyleSheet, View, Alert } from "react-native";
+import { StyleSheet, View, Alert, Text, FlatList } from "react-native";
 import { Button, Input } from "@rneui/themed";
 import { Session } from "@supabase/supabase-js";
+import { useFollowUsers } from "../hooks/useFollowUsers";
 
 export default function Account({ session }: { session: Session }) {
-  const [loading, setLoading] = useState<boolean>(true);
   const [username, setUsername] = useState<string>("");
   const [website, setWebsite] = useState<string>("");
+
+  const { users, followedUsers, handleFollow, handleUnfollow, loading, error } =
+    useFollowUsers();
+
+  if (loading) {
+    return <Text>Loading...</Text>;
+  }
+
+  if (error) {
+    return <Text>Error fetching users: {error.message}</Text>;
+  }
 
   useEffect(() => {
     if (session) getProfile();
@@ -15,7 +26,6 @@ export default function Account({ session }: { session: Session }) {
 
   async function getProfile() {
     try {
-      setLoading(true);
       if (!session?.user) throw new Error("No user on the session!");
 
       const { data, error, status } = await supabase
@@ -35,8 +45,6 @@ export default function Account({ session }: { session: Session }) {
       if (error instanceof Error) {
         Alert.alert(error.message);
       }
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -48,7 +56,6 @@ export default function Account({ session }: { session: Session }) {
     website: string;
   }) {
     try {
-      setLoading(true);
       if (!session?.user) throw new Error("No user on the session!");
 
       const updates = {
@@ -67,8 +74,6 @@ export default function Account({ session }: { session: Session }) {
       if (error instanceof Error) {
         Alert.alert(error.message);
       }
-    } finally {
-      setLoading(false);
     }
   }
 
@@ -92,6 +97,36 @@ export default function Account({ session }: { session: Session }) {
         />
       </View>
 
+      {/* Available Users to Follow Section */}
+      <Text style={styles.sectionHeader}>Available Users</Text>
+      <FlatList
+        data={users}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => {
+          const isFollowed = followedUsers.some(
+            (followedUser) => followedUser.followed_id === item.id
+          );
+
+          return (
+            <View style={styles.userItem}>
+              <Text style={styles.username}>{item.username}</Text>
+              <Button
+                title={isFollowed ? "Unfollow" : "Follow"}
+                onPress={() =>
+                  isFollowed
+                    ? handleUnfollow(item.id).catch((err) =>
+                        Alert.alert("Error", err.message)
+                      )
+                    : handleFollow(item.id).catch((err) =>
+                        Alert.alert("Error", err.message)
+                      )
+                }
+              />
+            </View>
+          );
+        }}
+      />
+
       <View style={styles.verticallySpaced}>
         <Button title="Sign Out" onPress={() => supabase.auth.signOut()} />
       </View>
@@ -111,5 +146,21 @@ const styles = StyleSheet.create({
   },
   mt20: {
     marginTop: 20,
+  },
+  sectionHeader: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginVertical: 10,
+  },
+  userItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: "#ddd",
+  },
+  username: {
+    fontSize: 16,
   },
 });
