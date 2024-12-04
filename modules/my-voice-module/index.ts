@@ -10,17 +10,14 @@ import { SpeechListenerCallback } from "./src/MyVoiceModule.types";
 const voiceEventEmitter = new EventEmitter(MyVoiceModule);
 
 export const startListening = () => {
-  console.log("startListening called");
   MyVoiceModule.startListening();
 };
 
 export const stopListening = () => {
-  console.log("stopListening called");
   MyVoiceModule.stopListening();
 };
 
 export const addSpeechListener = (callback: SpeechListenerCallback) => {
-  console.log("addSpeechListener called");
   const subscription = voiceEventEmitter.addListener("onResults", callback);
   return subscription;
 };

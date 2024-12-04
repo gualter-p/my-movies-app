@@ -11,7 +11,6 @@ export const useVoiceRecognition = (onResult: (text: string) => void) => {
 
   useEffect(() => {
     const subscription = addSpeechListener((text) => {
-      console.log("text: ", text);
       onResult(text.results);
       setIsListening(false);
     });

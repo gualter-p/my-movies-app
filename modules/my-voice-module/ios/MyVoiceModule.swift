@@ -43,12 +43,10 @@ public class MyVoiceModule: Module {
   }
 
   private func startRecognition() {
-    print("Cleaning..")
     stopRecognition()
 
-    print("Creating audioSession...")
     let audioSession = AVAudioSession.sharedInstance()
-    print("audioSession created: \(audioSession)")
+
     do {
       try audioSession.setCategory(.record, mode: .measurement, options: .duckOthers)
       try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
@@ -87,18 +85,11 @@ public class MyVoiceModule: Module {
       }
     }
 
-    var recordingFormat = inputNode.inputFormat(forBus: 0)
+    var recordingFormat = inputNode.inputFormat(forBus: 0)   
 
-    print("Input format: \(recordingFormat)")
-   
-    do {
-      inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
-      recognitionRequest.append(buffer)
+    inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { buffer, _ in
+      recognitionRequest.append(buffer) 
     }
-    } catch {
-      print("Error!")
-    }
-
 
     audioEngine.prepare()
     do {
