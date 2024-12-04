@@ -18,7 +18,7 @@ import useNetworkDetection from "./hooks/useNetworkDetection";
 import AuthGuard from "./screens/AuthGuard";
 import NetworkStatusModal from "./components/NetworkStatusModal";
 import MyMovies from "./screens/MyMovies";
-import { Toaster, toast } from "react-hot-toast";
+import Toast from "react-native-toast-message";
 import {
   addMovieToPlaylist,
   createPlaylist,
@@ -93,7 +93,7 @@ export default function App() {
           </View>
         </AuthGuard>
       </NavigationContainer>
-      <Toaster />
+      <Toast />
     </PersistQueryClientProvider>
   );
 }

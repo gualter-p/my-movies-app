@@ -22,7 +22,7 @@ import {
 import { Playlist, PlaylistModalProps } from "../types/Playlist";
 import { useQuery } from "@tanstack/react-query";
 import { Queries } from "../constants/query";
-import toast, { Toaster } from "react-hot-toast";
+import Toast from "react-native-toast-message";
 
 export default function PlaylistSelector({
   visible,
@@ -57,9 +57,11 @@ export default function PlaylistSelector({
 
     const connection = await NetInfo.fetch();
     if (!connection.isConnected) {
-      toast.error(
-        "The device is offline! Adding the movie to the playlist will be attempted when connection is reestablished."
-      );
+      Toast.show({
+        type: "error",
+        text1:
+          "The device is offline! Adding the movie to the playlist will be attempted when connection is reestablished.",
+      });
       cleanUp();
     }
 
@@ -136,7 +138,6 @@ export default function PlaylistSelector({
             <Text style={styles.closeButtonText}>Close</Text>
           </TouchableOpacity>
         </View>
-        <Toaster />
       </View>
     </Modal>
   );
