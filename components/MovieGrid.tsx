@@ -36,7 +36,7 @@ export default function MovieGrid({
     setIsPlaylistModalVisible(true);
   };
 
-  if (isLoading) return <ActivityIndicator size="large" />;
+  if (isLoading) return <ActivityIndicator />;
   if (error) return <Text style={styles.errorText}>Error fetching movies</Text>;
 
   return (

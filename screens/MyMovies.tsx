@@ -24,8 +24,7 @@ export default function MyMovies() {
     queryFn: getUserPlaylists,
   });
 
-  if (isLoading && !isFetched)
-    return <ActivityIndicator size="large" color="#0000ff" />;
+  if (isLoading && !isFetched) return <ActivityIndicator color="#0000ff" />;
 
   if (error)
     return <Text style={styles.errorText}>Error loading playlists</Text>;

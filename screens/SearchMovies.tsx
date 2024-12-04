@@ -30,7 +30,7 @@ export default function SearchMoviesScreen() {
   return (
     <View style={styles.container}>
       <SearchBar query={query} onChangeQuery={setQuery} />
-      {isLoading ? <ActivityIndicator size="large" /> : null}
+      {isLoading ? <ActivityIndicator /> : null}
       {!isLoading && debouncedQuery === "" ? (
         <Text style={styles.infoText}>Enter a movie name to search</Text>
       ) : null}
